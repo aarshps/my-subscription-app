@@ -1,0 +1,13 @@
+# Node modules
+node_modules/
+
+# Database file
+db.json
+
+# Environment variables (secrets!)
+.env
+
+# Optional: Log files, OS generated files etc.
+*.log
+.DS_Store
+package-lock.json

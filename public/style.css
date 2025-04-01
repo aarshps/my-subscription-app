@@ -1,0 +1,279 @@
+/* public/style.css */
+
+/* --- Google Font Import --- */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+/* --- CSS Variables (Dark Theme Only) --- */
+:root {
+    --google-blue: #8ab4f8; --google-blue-dark: #aecbfa; /* Lighter blue for hover/active on dark */
+    --google-red: #f28b82; --google-red-dark: #f6aea9;   /* Lighter red for hover/active on dark */
+    --google-green: #81c995; --google-yellow: #fdd663;   /* Warning */
+    --google-grey-100: #202124; /* Darkest Grey / Near Black */
+    --google-grey-200: #292a2d; /* Dark Grey */
+    --google-grey-300: #3c4043; /* Medium Dark Grey (Borders, Inputs) */
+    --google-grey-500: #5f6368; /* Lighter Grey (Subtle Borders) */
+    --google-grey-600: #9aa0a6; /* Medium Light Grey (Secondary Text) */
+    --google-grey-700: #bdc1c6; /* Light Grey (Placeholder/Disabled Text) */
+    --google-grey-900: #e8eaed; /* Near White (Primary Text) */
+
+    --bg-primary: #121212; /* Deep Background */
+    --bg-secondary: #1e1e1e; /* Surface Background (Header, Table, Modal) */
+    --surface-color: #1e1e1e; /* Alias for bg-secondary */
+
+    --text-color-primary: var(--google-grey-900);
+    --text-color-secondary: var(--google-grey-600);
+    --text-color-header: var(--google-grey-600); /* Header title text */
+
+    --border-color-subtle: var(--google-grey-300);
+    --border-color-medium: var(--google-grey-500);
+    --focus-ring-color: #8ab4f8; /* Google Blue for Dark */
+    --scrim-color: rgba(0, 0, 0, 0.6); /* Darker scrim */
+
+    --hover-overlay: rgba(232, 234, 237, 0.08); /* Subtle white overlay for hover */
+    --button-hover-overlay: rgba(138, 180, 248, 0.08); /* Subtle blue overlay for button hover */
+
+    --progress-bg: var(--google-grey-500);
+
+    --border-radius-sm: 4px;
+    --border-radius-md: 8px; /* Default rounding */
+    --border-radius-lg: 12px; /* More rounded */
+    --border-radius-pill: 20px; /* For pill shapes */
+
+    --box-shadow-1: 0 1px 2px 0 rgba(0, 0, 0, 0.3), 0 1px 3px 1px rgba(0, 0, 0, 0.15);
+    --box-shadow-2: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 4px 8px 3px rgba(0, 0, 0, 0.15);
+    --box-shadow-fab: 0 4px 6px rgba(0, 0, 0, 0.25), 0 1px 3px rgba(0, 0, 0, 0.3);
+    --box-shadow-fab-hover: 0 6px 10px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.35);
+
+    /* Animation Timing */
+    --transition-duration-fast: 0.15s;
+    --transition-duration-medium: 0.3s;
+    --transition-duration-slow: 0.5s;
+    --transition-timing-function: ease-in-out;
+}
+
+/* --- Base & Reset Styles --- */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; color-scheme: dark; }
+body { font-family: 'Roboto', sans-serif; font-size: 14px; line-height: 1.5; margin: 0; background-color: var(--bg-primary); color: var(--text-color-primary); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; /* Prevent horizontal scroll during animations */ }
+main#app-content { padding: 20px 24px 80px 24px; flex-grow: 1; max-width: 1200px; margin: 0 auto; width: 100%; }
+h1, h2 { font-weight: 400; }
+
+/* --- Header --- */
+.app-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 24px; background-color: var(--bg-secondary); border-bottom: 1px solid var(--border-color-subtle); flex-shrink: 0; height: 64px; position: relative; z-index: 10; /* Ensure header is above content during transitions */ }
+.app-header h1 { margin: 0; font-size: 22px; font-weight: 400; color: var(--text-color-primary); } /* Header text primary */
+#auth-status { display: flex; align-items: center; gap: 16px; }
+#user-info { font-weight: 500; display: flex; align-items: center; gap: 10px; color: var(--text-color-primary); }
+#user-info img { width: 32px; height: 32px; border-radius: 50%; }
+
+/* --- Login Container (Logged Out View) --- */
+#login-container {
+    display: flex; /* Default display style */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+    text-align: center;
+    padding: 40px 20px;
+    opacity: 0; /* Initially hidden for animation */
+    transform: translateY(20px); /* Start slightly down */
+    transition: opacity var(--transition-duration-medium) var(--transition-timing-function),
+                transform var(--transition-duration-medium) var(--transition-timing-function);
+    will-change: opacity, transform; /* Optimize animation */
+}
+#login-container.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+#login-container h2 { font-size: 24px; font-weight: 500; color: var(--text-color-primary); margin-bottom: 12px; }
+#login-container p { font-size: 16px; color: var(--text-color-secondary); max-width: 400px; margin-bottom: 24px; line-height: 1.6; }
+#login-container #google-signin-button-container { margin-top: 16px; }
+#init-error-message { color: var(--google-red); margin-top: 20px; font-weight: 500; }
+
+/* --- App Content (Logged In View) --- */
+main#app-content {
+    display: block; /* Default display style */
+    opacity: 0; /* Initially hidden */
+    transform: translateY(20px); /* Start slightly down */
+    transition: opacity var(--transition-duration-medium) var(--transition-timing-function),
+                transform var(--transition-duration-medium) var(--transition-timing-function);
+    will-change: opacity, transform; /* Optimize animation */
+}
+main#app-content.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* --- Buttons (General & Specific) --- */
+.button { display: inline-flex; align-items: center; justify-content: center; font-family: 'Roboto', sans-serif; font-size: 14px; font-weight: 500; padding: 0 16px; height: 36px; border: 1px solid transparent; border-radius: var(--border-radius-lg); cursor: pointer; text-decoration: none; letter-spacing: 0.25px; transition: background-color var(--transition-duration-fast) ease, box-shadow var(--transition-duration-fast) ease, border-color var(--transition-duration-fast) ease, color var(--transition-duration-fast) ease; outline: none; }
+.button:focus-visible { box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--focus-ring-color); } /* Adjusted focus shadow */
+.button:disabled { opacity: 0.6; cursor: not-allowed; background-color: var(--google-grey-300) !important; border-color: var(--google-grey-300) !important; color: var(--google-grey-600) !important; box-shadow: none !important; }
+
+.button-primary { background-color: var(--google-blue); color: var(--google-grey-100); border-color: var(--google-blue); }
+.button-primary:hover:not(:disabled) { background-color: var(--google-blue-dark); border-color: var(--google-blue-dark); box-shadow: var(--box-shadow-1); }
+
+/* Sign Out Button - Styled as prominent ghost button */
+#logout-button {
+    background-color: transparent;
+    color: var(--google-blue); /* Accent color text */
+    border: 1px solid var(--google-blue); /* Accent color border */
+    height: 32px;
+    padding: 0 12px;
+    font-size: 13px;
+    border-radius: var(--border-radius-lg); /* Rounded */
+    font-weight: 500;
+    /* Base styles for animation */
+    opacity: 0;
+    transition: opacity var(--transition-duration-medium) var(--transition-timing-function),
+                background-color var(--transition-duration-fast) ease,
+                border-color var(--transition-duration-fast) ease,
+                color var(--transition-duration-fast) ease;
+    will-change: opacity;
+}
+#logout-button.visible { /* Added visible class for animation */
+    opacity: 1;
+}
+#logout-button:hover:not(:disabled) {
+    background-color: var(--button-hover-overlay); /* Subtle blue background */
+    border-color: var(--google-blue-dark); /* Slightly lighter border */
+    color: var(--google-blue-dark); /* Slightly lighter text */
+}
+#logout-button:focus-visible {
+    border-color: var(--google-blue-dark);
+    box-shadow: 0 0 0 1px var(--bg-secondary), 0 0 0 3px var(--focus-ring-color);
+}
+
+/* User Info Span - Animation */
+#user-info {
+     opacity: 0;
+     transition: opacity var(--transition-duration-medium) var(--transition-timing-function);
+     will-change: opacity;
+}
+#user-info.visible {
+    opacity: 1;
+}
+
+
+/* Delete Button */
+.delete-btn { background-color: transparent; color: var(--google-red); border: none; padding: 6px 8px; border-radius: var(--border-radius-md); cursor: pointer; font-size: 13px; font-weight: 500; transition: background-color var(--transition-duration-fast) ease, color var(--transition-duration-fast) ease, opacity var(--transition-duration-fast) ease; outline: none; }
+.delete-btn:hover:not(:disabled) { background-color: rgba(242, 139, 130, 0.12); }
+.delete-btn:focus-visible { background-color: rgba(242, 139, 130, 0.16); box-shadow: 0 0 0 2px var(--focus-ring-color); }
+/* Styling for disabled state during delete animation */
+.delete-btn:disabled {
+    color: var(--google-grey-600) !important;
+    background-color: transparent !important;
+}
+
+
+/* --- Floating Action Button (FAB) --- */
+.fab { position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; background-color: var(--google-blue); color: var(--google-grey-100); border: none; border-radius: 50%; font-size: 28px; line-height: 56px; text-align: center; box-shadow: var(--box-shadow-fab); cursor: pointer; transition: background-color var(--transition-duration-fast) ease, box-shadow var(--transition-duration-fast) ease, transform var(--transition-duration-medium) var(--transition-timing-function); z-index: 900; outline: none; transform: scale(0); /* Start hidden */ }
+/* Show FAB when app content is visible */
+main#app-content.visible .fab {
+   transform: scale(1);
+}
+.fab:hover { background-color: var(--google-blue-dark); box-shadow: var(--box-shadow-fab-hover); }
+.fab:focus-visible { box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--focus-ring-color); }
+
+
+/* --- Table Styles --- */
+#subscription-list { background-color: var(--bg-secondary); border: 1px solid var(--border-color-subtle); border-radius: var(--border-radius-lg); overflow: hidden; margin-top: 24px; }
+table { width: 100%; border-collapse: collapse; }
+th, td { border: none; border-bottom: 1px solid var(--border-color-subtle); padding: 16px 24px; text-align: left; vertical-align: middle; font-size: 14px; }
+tr:last-child td { border-bottom: none; }
+th { background-color: var(--bg-secondary); font-weight: 500; color: var(--text-color-secondary); font-size: 13px; padding-top: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color-subtle); position: sticky; top: 0; z-index: 1; /* Keep header visible on scroll */ }
+
+/* Table Row Transitions */
+tbody tr {
+    opacity: 1;
+    transform: scale(1);
+    max-height: 100px; /* Estimate max row height for animation */
+    transition: opacity var(--transition-duration-medium) var(--transition-timing-function),
+                transform var(--transition-duration-medium) var(--transition-timing-function),
+                max-height var(--transition-duration-medium) ease-in-out,
+                padding var(--transition-duration-medium) ease-in-out,
+                border var(--transition-duration-medium) ease-in-out,
+                background-color var(--transition-duration-fast) ease; /* Add background transition */
+    overflow: hidden; /* Important for max-height animation */
+    will-change: opacity, transform, max-height; /* Optimize animation */
+}
+tbody tr:hover { background-color: var(--hover-overlay); }
+
+/* Adding state (optional subtle fade-in) */
+/* tbody tr.adding {
+   opacity: 0;
+   transform: scale(0.95);
+} */
+
+/* Deleting state */
+tbody tr.deleting {
+    opacity: 0;
+    transform: scale(0.9);
+    max-height: 0;
+    padding-top: 0 !important; /* Override inline/default styles */
+    padding-bottom: 0 !important;
+    border-width: 0 !important;
+    pointer-events: none; /* Prevent interaction during deletion */
+}
+/* Ensure TD content fades out too */
+tbody tr.deleting td {
+     padding-top: 0 !important;
+     padding-bottom: 0 !important;
+     border-width: 0 !important;
+     line-height: 0; /* Helps collapse */
+     overflow: hidden; /* Hide content */
+     /* Add transition for TD fade out if needed */
+     transition: padding var(--transition-duration-medium) ease-in-out,
+                 border var(--transition-duration-medium) ease-in-out,
+                 line-height var(--transition-duration-medium) ease-in-out;
+}
+
+
+/* --- Progress Bar Styling --- */
+progress { width: 100%; height: 8px; appearance: none; border: none; border-radius: var(--border-radius-pill); overflow: hidden; display: block; margin-bottom: 4px; background-color: var(--progress-bg); }
+progress::-webkit-progress-bar { background-color: var(--progress-bg); border-radius: var(--border-radius-pill); }
+progress::-webkit-progress-value { background-color: var(--google-green); border-radius: var(--border-radius-pill); transition: width 0.3s ease, background-color 0.3s ease; }
+progress.warning::-webkit-progress-value { background-color: var(--google-yellow); }
+progress.danger::-webkit-progress-value { background-color: var(--google-red); }
+progress::-moz-progress-bar { background-color: var(--google-green); border-radius: var(--border-radius-pill); transition: width 0.3s ease, background-color 0.3s ease; }
+progress.warning::-moz-progress-bar { background-color: var(--google-yellow); }
+progress.danger::-moz-progress-bar { background-color: var(--google-red); }
+.timeline-cell { min-width: 150px; }
+.timeline-text { font-size: 12px; color: var(--text-color-secondary); line-height: 1.3; }
+
+/* --- Modal Styling --- */
+.modal { position: fixed; left: 0; top: 0; width: 100%; height: 100%; background-color: var(--scrim-color); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; /* Initially hidden */ pointer-events: none; /* Prevent interaction when hidden */ transition: opacity var(--transition-duration-medium) var(--transition-timing-function); will-change: opacity; }
+.modal.visible { opacity: 1; pointer-events: auto; }
+
+.modal-content { background-color: var(--bg-secondary); padding: 24px; border-radius: var(--border-radius-lg); box-shadow: var(--box-shadow-2); width: 90%; max-width: 450px; position: relative; opacity: 0; /* Initially hidden */ transform: scale(0.9); /* Start slightly small */ transition: opacity var(--transition-duration-medium) var(--transition-timing-function), transform var(--transition-duration-medium) var(--transition-timing-function); will-change: opacity, transform; }
+.modal.visible .modal-content { opacity: 1; transform: scale(1); }
+
+.modal-content h2 { font-size: 20px; margin-top: 0; margin-bottom: 20px; color: var(--text-color-primary); }
+.close-btn { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; line-height: 36px; text-align: center; font-size: 22px; font-weight: normal; cursor: pointer; color: var(--text-color-secondary); border-radius: 50%; transition: background-color var(--transition-duration-fast) ease, color var(--transition-duration-fast) ease; }
+.close-btn:hover { background-color: var(--hover-overlay); color: var(--text-color-primary); }
+
+/* --- Form Input Styling --- */
+#add-subscription-form label { display: block; margin-top: 16px; margin-bottom: 8px; font-weight: 500; font-size: 13px; color: var(--text-color-secondary); }
+#add-subscription-form input[type="text"],
+#add-subscription-form input[type="number"],
+#add-subscription-form input[type="date"],
+#add-subscription-form input[type="month"] { display: block; width: 100%; padding: 10px 12px; margin-bottom: 8px; border: 1px solid var(--border-color-medium); border-radius: var(--border-radius-md); background-color: var(--google-grey-200); font-size: 14px; color: var(--text-color-primary); transition: border-color var(--transition-duration-fast) ease, box-shadow var(--transition-duration-fast) ease, background-color var(--transition-duration-fast) ease, color var(--transition-duration-fast) ease; outline: none; height: 40px; }
+#add-subscription-form input[type="date"],
+#add-subscription-form input[type="month"] { color-scheme: dark; }
+#add-subscription-form input:focus { border-color: var(--google-blue); box-shadow: 0 0 0 1px var(--google-blue); }
+.form-actions { margin-top: 24px; text-align: right; }
+#add-subscription-form button[type="submit"] { width: auto; }
+
+/* --- Inline Editing Input --- */
+td.editing { padding: 0; }
+td input.edit-input { width: 100%; height: 53px; padding: 16px 24px; border: 2px solid var(--google-blue); border-radius: 0; font-size: inherit; font-family: inherit; background-color: var(--google-grey-200); color: var(--text-color-primary); outline: none; display: block; margin: 0; box-sizing: border-box; }
+td input[type="date"].edit-input,
+td input[type="month"].edit-input { color-scheme: dark; }
+
+/* --- Messages Styling --- */
+#loading-message, #empty-message { text-align: center; margin-top: 40px; padding: 20px; color: var(--text-color-secondary); font-size: 14px; font-style: normal; transition: opacity var(--transition-duration-medium) ease; }
+.error-message { color: var(--google-red); font-size: 13px; margin-top: 8px; font-weight: 400; text-align: left; }
+#form-error { min-height: 1.5em; }
+
+/* --- Auth Loading/Status --- */
+#auth-loading { color: var(--text-color-secondary); font-size: 13px; }
+#google-signin-button-container > div { margin: 0 !important; }
+#google-signin-button-container iframe { border-radius: var(--border-radius-pill) !important; }
